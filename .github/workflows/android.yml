@@ -30,23 +30,25 @@ jobs:
         with:
           api-level: 29
           build-tools: 29.0.3
-          ndk-version: 25.2.9519653
+          # NDK r23b (23.1.7779620) Macroquad için en sorunsuz sürümdür
+          ndk-version: 23.1.7779620
 
       - name: Force Install Android 29 Platform
         run: |
-          # sdkmanager'ın tam yolunu kullanarak eksik paketleri zorla yüklüyoruz
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-29"
+          # sdkmanager yolunu bulup zorla yüklüyoruz
+          SDK_MANAGER=$(find $ANDROID_HOME -name sdkmanager | head -n 1)
+          $SDK_MANAGER --sdk_root=$ANDROID_HOME "platforms;android-29"
 
       - name: Install cargo-quad-apk
         run: cargo install cargo-quad-apk
 
       - name: Build APK
         env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
-          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
+          # Değişen NDK sürümüne göre yolları güncelledik
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/23.1.7779620
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/23.1.7779620
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/23.1.7779620
         run: |
-          # Derleme komutu
           cargo quad-apk build --release
 
       - name: Upload APK Artifact
