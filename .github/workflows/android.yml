@@ -2,38 +2,46 @@ name: Android Build
 
 on:
   push:
-      branches: [ main ] # Kodu 'main' dalına attığında çalışır
-        pull_request:
-            branches: [ main ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-            jobs:
-              build:
-                  runs-on: ubuntu-latest
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
 
-                      steps:
-                            - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v4
 
-                                  - name: Install Rust
-                                          uses: dtolnay/rust-toolchain@stable
-                                                  with:
-                                                            targets: aarch64-linux-android, armv7-linux-androideabi
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
 
-                                                                  - name: Install Android NDK
-                                                                          uses: nndixon/setup-android-ndk@v1
-                                                                                  with:
-                                                                                            ndk-version: r25c # Macroquad için en stabil sürümlerden biri
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-                                                                                                  - name: Install cargo-quad-apk
-                                                                                                          run: cargo install cargo-quad-apk
+      - name: Install Android NDK
+        uses: android-actions/setup-android@v3
 
-                                                                                                                - name: Build APK
-                                                                                                                        run: |
-                                                                                                                                  # Proje adını Cargo.toml'dan otomatik alır
-                                                                                                                                            cargo quad-apk build --release
+      - name: Install NDK Component
+        run: sdkmanager "ndk;25.2.9519653" # Spesifik NDK versiyonu
 
-                                                                                                                                                  - name: Upload APK
-                                                                                                                                                          uses: actions/upload-artifact@v3
-                                                                                                                                                                  with:
-                                                                                                                                                                            name: yilan-oyunu-apk
-                                                                                                                                                                                      path: target/android-artifacts/release/*.apk
-                                                                                                                                                                                      
+      - name: Install cargo-quad-apk
+        run: cargo install cargo-quad-apk
+
+      - name: Build APK
+        env:
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
+        run: |
+          # NDK yolunu açıkça belirterek derliyoruz
+          cargo quad-apk build --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yilan-oyunu-release
+          path: target/android-artifacts/release/*.apk
