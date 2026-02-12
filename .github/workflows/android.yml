@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -24,24 +25,28 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Android NDK
+      - name: Install Android SDK & NDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NDK Component
-        run: sdkmanager "ndk;25.2.9519653" # Spesifik NDK versiyonu
+      - name: Install Specific NDK Version
+        run: sdkmanager "ndk;25.2.9519653"
 
       - name: Install cargo-quad-apk
         run: cargo install cargo-quad-apk
 
       - name: Build APK
         env:
+          # Macroquad'ın beklediği tüm olası NDK değişkenlerini tanımlıyoruz
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
         run: |
-          # NDK yolunu açıkça belirterek derliyoruz
+          # Projeyi derle
           cargo quad-apk build --release
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yilan-oyunu-release
+          name: yilan-oyunu-apk
+          # Macroquad varsayılan olarak bu klasöre çıktı verir
           path: target/android-artifacts/release/*.apk
