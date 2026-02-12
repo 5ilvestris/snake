@@ -1,0 +1,15 @@
+[package]
+name = "yilan_oyunu"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+macroquad = "0.4.5"
+
+# Android ve Web (WASM) tarafında daha iyi performans ve uyumluluk için
+# bazen alt kütüphaneleri optimize etmek gerekebilir ancak 
+# varsayılan macroquad çoğu zaman yeterlidir.
+
+[patch.crates-io]
+# Eğer Android derlemesinde çok spesifik bir hata alırsan 
+# miniquad sürümünü buradan sabitleyebiliriz.
