@@ -28,21 +28,25 @@ jobs:
       - name: Install Android SDK & NDK
         uses: android-actions/setup-android@v3
         with:
-          # Gereken bileşenleri doğrudan burada belirtiyoruz
           api-level: 29
           build-tools: 29.0.3
           ndk-version: 25.2.9519653
+
+      - name: Force Install Android 29 Platform
+        run: |
+          # sdkmanager'ın tam yolunu kullanarak eksik paketleri zorla yüklüyoruz
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-29"
 
       - name: Install cargo-quad-apk
         run: cargo install cargo-quad-apk
 
       - name: Build APK
         env:
-          # setup-android aksiyonu ANDROID_HOME'u otomatik ayarlar
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
         run: |
+          # Derleme komutu
           cargo quad-apk build --release
 
       - name: Upload APK Artifact
