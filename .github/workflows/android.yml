@@ -25,16 +25,20 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Android SDK Components
-        run: |
-          # Eksik olan android.jar dosyasını burası getirecek
-          sdkmanager "platforms;android-29" "build-tools;29.0.3" "ndk;25.2.9519653"
+      - name: Install Android SDK & NDK
+        uses: android-actions/setup-android@v3
+        with:
+          # Gereken bileşenleri doğrudan burada belirtiyoruz
+          api-level: 29
+          build-tools: 29.0.3
+          ndk-version: 25.2.9519653
 
       - name: Install cargo-quad-apk
         run: cargo install cargo-quad-apk
 
       - name: Build APK
         env:
+          # setup-android aksiyonu ANDROID_HOME'u otomatik ayarlar
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
