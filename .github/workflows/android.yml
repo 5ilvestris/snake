@@ -25,28 +25,24 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Android SDK & NDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Specific NDK Version
-        run: sdkmanager "ndk;25.2.9519653"
+      - name: Install Android SDK Components
+        run: |
+          # Eksik olan android.jar dosyasını burası getirecek
+          sdkmanager "platforms;android-29" "build-tools;29.0.3" "ndk;25.2.9519653"
 
       - name: Install cargo-quad-apk
         run: cargo install cargo-quad-apk
 
       - name: Build APK
         env:
-          # Macroquad'ın beklediği tüm olası NDK değişkenlerini tanımlıyoruz
           NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_ROOT: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
           ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/25.2.9519653
         run: |
-          # Projeyi derle
           cargo quad-apk build --release
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: yilan-oyunu-apk
-          # Macroquad varsayılan olarak bu klasöre çıktı verir
           path: target/android-artifacts/release/*.apk
